@@ -20,6 +20,7 @@ from ur_moveit_config.launch_common import load_yaml
 
 
 package_name = "magician_ur"
+this_package_share = get_package_share_directory(package_name)
 
 
 
@@ -292,13 +293,6 @@ def launch_setup(context, *args, **kwargs):
         output="log",
         arguments=["-d", rviz_config],
         parameters=rviz_parameters,
-        # parameters=[
-        #     robot_description,
-        #     semantic_description,
-        #     ompl_planning_pipeline_config,
-        #     robot_description_kinematics,
-        #     warehouse_ros_config,
-        # ],
         condition=IfCondition(LaunchConfiguration("launch_rviz").perform(context)),
     )
 
@@ -312,8 +306,6 @@ def launch_setup(context, *args, **kwargs):
 
 def generate_launch_description():
     declared_arguments = []
-
-    this_package_share = get_package_share_directory(package_name)
 
     declared_arguments.append(
         DeclareLaunchArgument(

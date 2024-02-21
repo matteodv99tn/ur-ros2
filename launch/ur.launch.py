@@ -97,7 +97,7 @@ def launch_setup(context, *args, **kwargs):
     ignition_spawn_robot = Node(
         package="ros_gz_sim",
         executable="create",
-        output="screen",
+        output="log",
         arguments=[
             "-topic",
             "/robot_description",
@@ -153,6 +153,7 @@ def launch_setup(context, *args, **kwargs):
         arguments=[
             "joint_state_broadcaster", "--controller-manager", "/controller_manager"
         ],
+        output="log",
         condition=IfCondition(is_simulation),
     )
 
@@ -164,6 +165,7 @@ def launch_setup(context, *args, **kwargs):
             "--controller-manager",
             "/controller_manager"
         ],
+        output="log",
         condition=IfCondition(is_simulation),
     )
 
@@ -295,9 +297,17 @@ def launch_setup(context, *args, **kwargs):
         parameters=rviz_parameters,
         condition=IfCondition(LaunchConfiguration("launch_rviz").perform(context)),
     )
-
+    rqt_controller_manager = Node(
+            package="rqt_controller_manager",
+            executable="rqt_controller_manager",
+            name="rqt_controller_manager",
+            output="log",
+            condition=IfCondition(LaunchConfiguration("launch_rqt_cm").perform(context)),
+        )
+    
     nodes_to_start += [
         rviz_node,
+        rqt_controller_manager,
     ]
 
     return nodes_to_start
@@ -363,6 +373,13 @@ def generate_launch_description():
             "ur_ip_address",
             description="IP address of the UR robot to be used in the driver.",
             default_value="192.168.0.100",
+        )
+    )
+    declared_arguments.append(
+        DeclareLaunchArgument(
+            "launch_rqt_cm",
+            description="Launch rqt_controller_manager?",
+            default_value="false",
         )
     )
     declared_arguments.append(

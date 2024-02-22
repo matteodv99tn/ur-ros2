@@ -116,8 +116,8 @@ def generate_launch_description():
         DeclareLaunchArgument(
             "controllers",
             description=".yaml file name inside current package",
-            default_value="ur_controllers.yaml"
-            # default_value="default_controllers.yaml"
+            default_value="cartesian_controllers_table.yaml"
+            # default_value="ur_controllers.yaml"
         )
     )
     declared_arguments.append(

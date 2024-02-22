@@ -43,10 +43,14 @@ def launch_setup(context, *args, **kwargs):
     ur_type = LaunchConfiguration("ur_type").perform(context)
     ur_ip_address = LaunchConfiguration("ur_ip_address").perform(context)
     load_moveit = LaunchConfiguration("load_moveit").perform(context)
+    initial_joint_controller = LaunchConfiguration("initial_joint_controller").perform(context)
 
     controllers_full_path = os.path.join(
         get_package_share_directory(package_name), "config", controllers
     )
+
+    if (initial_joint_controller == "scaled_joint_trajectory_controller") and (is_simulation == "true"):
+        initial_joint_controller = "joint_trajectory_controller"
 
     #  ____  _             _
     # / ___|| |_ __ _ _ __| |_ _   _ _ __
@@ -130,7 +134,8 @@ def launch_setup(context, *args, **kwargs):
     #
     ur_drivers_node = IncludeLaunchDescription(
         PythonLaunchDescriptionSource([
-            FindPackageShare("ur_robot_driver"), "/launch/ur_control.launch.py"
+            # FindPackageShare("ur_robot_driver"), "/launch/ur_control.launch.py"
+            FindPackageShare("magician_ur"), "/launch/ur_control.launch.py"
         ], ),
         launch_arguments={
             "ur_type": ur_type,
@@ -142,7 +147,7 @@ def launch_setup(context, *args, **kwargs):
             "controllers_file": controllers,
             "launch_rviz": "false",
             "headless_mode": "true",
-            # "initial_joint_controller": "joint_trajectory_controller",
+            "initial_joint_controller": initial_joint_controller,
         }.items(),
         condition=UnlessCondition(is_simulation),
     )
@@ -269,7 +274,7 @@ def launch_setup(context, *args, **kwargs):
 
     nodes_to_start += [
         move_group_node,
-        servo_node,
+        # servo_node,
     ]
 
     #  ______     ___
@@ -304,7 +309,7 @@ def launch_setup(context, *args, **kwargs):
             output="log",
             condition=IfCondition(LaunchConfiguration("launch_rqt_cm").perform(context)),
         )
-    
+
     nodes_to_start += [
         rviz_node,
         rqt_controller_manager,
@@ -321,7 +326,7 @@ def generate_launch_description():
         DeclareLaunchArgument(
             "is_simulation",
             description="Load simulation environment or robot driver?",
-            default_value="true",
+            default_value="false",
         )
     )
     declared_arguments.append(
@@ -333,7 +338,7 @@ def generate_launch_description():
     )
     declared_arguments.append(
         DeclareLaunchArgument(
-            "load_moveit",
+            "load_moveit",#
             description="Load moveit2 components?",
             default_value="false",
         )
@@ -354,9 +359,16 @@ def generate_launch_description():
     )
     declared_arguments.append(
         DeclareLaunchArgument(
+            "initial_joint_controller",
+            description="type of UR robot to be used in the simulation or driver.",
+            default_value="scaled_joint_trajectory_controller",
+        )
+    )
+    declared_arguments.append(
+        DeclareLaunchArgument(
             "ur_type",
             description="type of UR robot to be used in the simulation or driver.",
-            default_value="ur5",
+            default_value="ur5e",
         )
     )
     declared_arguments.append(

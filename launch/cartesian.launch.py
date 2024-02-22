@@ -40,6 +40,7 @@ def launch_setup(context, *args, **kwargs):
     launch_rviz = LaunchConfiguration("launch_rviz")
     rviz_config = LaunchConfiguration("rviz_config")
     launch_rqt_cm = LaunchConfiguration("launch_rqt_cm")
+    initial_joint_controller = LaunchConfiguration("initial_joint_controller")
 
     ur_launch_path = os.path.join(this_package_share, "launch", "ur.launch.py")
 
@@ -56,9 +57,15 @@ def launch_setup(context, *args, **kwargs):
             "launch_rviz": launch_rviz,
             "rviz_config": rviz_config,
             "launch_rqt_cm": launch_rqt_cm,
+            "initial_joint_controller": initial_joint_controller,
         }.items(),
     )
-    nodes_to_start += [ur_launch]
+    motion_handler_spawner = Node(
+        package="controller_manager",
+        executable="spawner",
+        arguments=["motion_control_handle", "-c", "/controller_manager"],
+        )
+    nodes_to_start += [ur_launch, motion_handler_spawner]
 
     return nodes_to_start
 
@@ -71,6 +78,20 @@ def generate_launch_description():
         DeclareLaunchArgument(
             "is_simulation",
             description="Load simulation environment or robot driver?",
+            default_value="false",
+        )
+    )
+    declared_arguments.append(
+        DeclareLaunchArgument(
+            "initial_joint_controller",
+            description="type of UR robot to be used in the simulation or driver.",
+            default_value="cartesian_compliance_controller",
+        )
+    )
+    declared_arguments.append(
+        DeclareLaunchArgument(
+            "launch_rqt_cm",
+            description="Launch rqt_controller_manager?",
             default_value="true",
         )
     )
@@ -83,9 +104,24 @@ def generate_launch_description():
     )
     declared_arguments.append(
         DeclareLaunchArgument(
-            "launch_rqt_cm",
-            description="Launch rqt_controller_manager?",
-            default_value="true",
+            "rviz_config",
+            description="RViz configuration",
+            default_value=os.path.join(this_package_share, "rviz", "cartesian.rviz")
+        )
+    )
+    declared_arguments.append(
+        DeclareLaunchArgument(
+            "controllers",
+            description=".yaml file name inside current package",
+            default_value="ur_controllers.yaml"
+            # default_value="default_controllers.yaml"
+        )
+    )
+    declared_arguments.append(
+        DeclareLaunchArgument(
+            "ur_type",
+            description="type of UR robot to be used in the simulation or driver.",
+            default_value="ur5e",
         )
     )
     declared_arguments.append(
@@ -93,27 +129,6 @@ def generate_launch_description():
             "load_moveit",
             description="Load moveit2 components?",
             default_value="false",
-        )
-    )
-    declared_arguments.append(
-        DeclareLaunchArgument(
-            "rviz_config",
-            description="RViz configuration",
-            default_value=os.path.join(this_package_share, "rviz", "view_robot.rviz")
-        )
-    )
-    declared_arguments.append(
-        DeclareLaunchArgument(
-            "controllers",
-            description=".yaml file name inside current package",
-            default_value="cartesian_controllers.yaml"
-        )
-    )
-    declared_arguments.append(
-        DeclareLaunchArgument(
-            "ur_type",
-            description="type of UR robot to be used in the simulation or driver.",
-            default_value="ur5",
         )
     )
     declared_arguments.append(

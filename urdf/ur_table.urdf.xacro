@@ -58,11 +58,12 @@
    <!-- create link fixed to the "world" -->
    <link name="world" />
 
+   <!--
    <link name="table">
      <visual>
        <origin xyz="0 0 0" rpy="0 0 0"/>
        <geometry>
-         <mesh filename="package://magician_demo/resources/mesh/tavolo.stl" scale="0.001 0.001 0.001"/>
+         <mesh filename="package://magician_ur/resources/mesh/tavolo.stl" scale="0.001 0.001 0.001"/>
        </geometry>
        <material name="white">
          <color rgba="1 1 1 1"/>
@@ -71,7 +72,7 @@
      <collision>
        <origin xyz="0 0 0" rpy="0 0 0"/>
        <geometry>
-         <mesh filename="package://magician_demo/resources/mesh/tavolo.stl" scale="0.001 0.001 0.001"/>
+         <mesh filename="package://magician_ur/resources/mesh/tavolo.stl" scale="0.001 0.001 0.001"/>
        </geometry>
      </collision>
    </link>
@@ -81,6 +82,7 @@
      <parent link="world" />
      <child link="table" />
    </joint>
+   -->
 
 
    <!-- arm -->

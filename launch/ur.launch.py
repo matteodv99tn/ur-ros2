@@ -38,12 +38,17 @@ def launch_setup(context, *args, **kwargs):
     controllers = LaunchConfiguration("controllers").perform(context)
     rviz_config = LaunchConfiguration("rviz_config").perform(context)
     use_sim_time = LaunchConfiguration("is_simulation").perform(context) == "true"
-    urdf_xacro_path = LaunchConfiguration("urdf_xacro_path").perform(context)
     srdf_xacro_path = LaunchConfiguration("srdf_xacro_path").perform(context)
     ur_type = LaunchConfiguration("ur_type").perform(context)
     ur_ip_address = LaunchConfiguration("ur_ip_address").perform(context)
     load_moveit = LaunchConfiguration("load_moveit").perform(context)
     initial_joint_controller = LaunchConfiguration("initial_joint_controller").perform(context)
+    description_package = LaunchConfiguration("description_package").perform(context)
+    xacro_file = LaunchConfiguration("xacro_file").perform(context)
+
+    urdf_xacro_path = os.path.join(
+        get_package_share_directory(description_package), "urdf", xacro_file
+    )
 
     controllers_full_path = os.path.join(
         get_package_share_directory(package_name), "config", controllers
@@ -141,8 +146,8 @@ def launch_setup(context, *args, **kwargs):
             "ur_type": ur_type,
             "robot_ip": ur_ip_address,
             "tf_prefix": "",
-            "description_package": "ur_description",
-            "description_file": "ur.urdf.xacro",
+            "description_package": description_package,
+            "description_file": xacro_file,
             "runtime_config_package": package_name,
             "controllers_file": controllers,
             "launch_rviz": "false",
@@ -373,13 +378,19 @@ def generate_launch_description():
     )
     declared_arguments.append(
         DeclareLaunchArgument(
-            "urdf_xacro_path",
-            description="Path to the urdf xacro file to be used for robot description.",
-            default_value=os.path.join(
-                get_package_share_directory("ur_description"), "urdf", "ur.urdf.xacro"
-            ),
+            "description_package",
+            description="Package where the robot description (as xacro file) is located.",
+            default_value="ur_description",
         )
     )
+    declared_arguments.append(
+        DeclareLaunchArgument(
+            "xacro_file",
+            description="Name of the xacro file to be used for robot description.",
+            default_value="ur.urdf.xacro",
+        )
+    )
+
     declared_arguments.append(
         DeclareLaunchArgument(
             "ur_ip_address",

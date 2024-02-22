@@ -32,7 +32,6 @@ def launch_setup(context, *args, **kwargs):
 
     is_simulation = LaunchConfiguration("is_simulation")
     ur_type = LaunchConfiguration("ur_type")
-    urdf_xacro_path = LaunchConfiguration("urdf_xacro_path")
     srdf_xacro_path = LaunchConfiguration("srdf_xacro_path")
     ur_ip_address = LaunchConfiguration("ur_ip_address")
     controllers = LaunchConfiguration("controllers")
@@ -41,6 +40,8 @@ def launch_setup(context, *args, **kwargs):
     rviz_config = LaunchConfiguration("rviz_config")
     launch_rqt_cm = LaunchConfiguration("launch_rqt_cm")
     initial_joint_controller = LaunchConfiguration("initial_joint_controller")
+    description_package = LaunchConfiguration("description_package").perform(context)
+    xacro_file = LaunchConfiguration("xacro_file").perform(context)
 
     ur_launch_path = os.path.join(this_package_share, "launch", "ur.launch.py")
 
@@ -49,7 +50,8 @@ def launch_setup(context, *args, **kwargs):
         launch_arguments={
             "is_simulation": is_simulation,
             "ur_type": ur_type,
-            "urdf_xacro_path": urdf_xacro_path,
+            "description_package": description_package,
+            "xacro_file": xacro_file,
             "srdf_xacro_path": srdf_xacro_path,
             "ur_ip_address": ur_ip_address,
             "controllers": controllers,
@@ -85,7 +87,8 @@ def generate_launch_description():
         DeclareLaunchArgument(
             "initial_joint_controller",
             description="type of UR robot to be used in the simulation or driver.",
-            default_value="cartesian_compliance_controller",
+            #default_value="cartesian_compliance_controller",
+            default_value="joint_position_controller",
         )
     )
     declared_arguments.append(
@@ -133,11 +136,16 @@ def generate_launch_description():
     )
     declared_arguments.append(
         DeclareLaunchArgument(
-            "urdf_xacro_path",
-            description="Path to the urdf xacro file to be used for robot description.",
-            default_value=os.path.join(
-                get_package_share_directory("ur_description"), "urdf", "ur.urdf.xacro"
-            ),
+            "description_package",
+            description="Package where the robot description (as xacro file) is located.",
+            default_value=package_name,
+        )
+    )
+    declared_arguments.append(
+        DeclareLaunchArgument(
+            "xacro_file",
+            description="Name of the xacro file to be used for robot description.",
+            default_value="ur_table.urdf.xacro",
         )
     )
     declared_arguments.append(

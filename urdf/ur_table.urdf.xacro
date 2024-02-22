@@ -58,7 +58,6 @@
    <!-- create link fixed to the "world" -->
    <link name="world" />
 
-   <!--
    <link name="table">
      <visual>
        <origin xyz="0 0 0" rpy="0 0 0"/>
@@ -82,8 +81,6 @@
      <parent link="world" />
      <child link="table" />
    </joint>
-   -->
-
 
    <!-- arm -->
    <xacro:ur_robot

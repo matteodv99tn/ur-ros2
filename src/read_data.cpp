@@ -1,3 +1,4 @@
+#include <cstdint>
 #include <cstdlib>
 #include <fstream>
 #include <map>
@@ -9,6 +10,8 @@
 #include "tf2_ros/transform_listener.h"
 
 class ReadDataNode : public rclcpp::Node {
+    std::uint64_t                                                 first_joint_time = 0;
+    std::uint64_t                                                 first_cart_time  = 0;
     std::ofstream                                                 joint_file;
     std::ofstream                                                 cart_file;
     rclcpp::Subscription<sensor_msgs::msg::JointState>::SharedPtr sub;
@@ -32,15 +35,20 @@ class ReadDataNode : public rclcpp::Node {
             joint_values[idx] = msg->position[i];
         }
 
-        joint_file << msg->header.stamp.sec * 1e9 + msg->header.stamp.nanosec << ", ";
+        std::uint64_t curr_time =
+                msg->header.stamp.sec * 1e9 + msg->header.stamp.nanosec;
+        if (first_joint_time == 0) { first_joint_time = curr_time; }
+
+        joint_file << curr_time - first_joint_time << ", ";
         joint_file << joint_values[0] << ", " << joint_values[1] << ", "
                    << joint_values[2] << ", " << joint_values[3] << ", "
                    << joint_values[4] << ", " << joint_values[5] << std::endl;
 
         geometry_msgs::msg::TransformStamped transform;
-        transform = buffer.lookupTransform("world", "ee_link", tf2::TimePointZero);
-        cart_file << transform.header.stamp.sec * 1e9 + transform.header.stamp.nanosec
-                  << ", ";
+        transform = buffer.lookupTransform("world", "tool0", tf2::TimePointZero);
+        curr_time = transform.header.stamp.sec * 1e9 + msg->header.stamp.nanosec;
+        if (first_cart_time == 0) { first_cart_time = curr_time; }
+        cart_file << curr_time - first_cart_time << ", ";
         cart_file << transform.transform.translation.x << ", "
                   << transform.transform.translation.y << ", "
                   << transform.transform.translation.z << ", "

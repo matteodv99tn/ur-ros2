@@ -36,8 +36,6 @@ controller_manager:
 
     motion_control_handle:
       type: cartesian_controller_handles/MotionControlHandle
-    end_effector_controller:
-      type: end_effector_controller/EndEffectorControl
 
 speed_scaling_state_broadcaster:
   ros__parameters:
@@ -281,16 +279,3 @@ motion_control_handle:
       - wrist_1_joint
       - wrist_2_joint
       - wrist_3_joint
-end_effector_controller:
-  ros__parameters:
-    end_effector_link: "wrist_3_link"
-    robot_base_link: "base_link"
-    ft_sensor_ref_link: "wrist_3_link"
-    joints:
-      - shoulder_pan_joint
-      - shoulder_lift_joint
-      - elbow_joint
-      - wrist_1_joint
-      - wrist_2_joint
-      - wrist_3_joint
-

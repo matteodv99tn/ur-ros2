@@ -7,9 +7,11 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 endif()
 
 find_package(ament_cmake REQUIRED)
+find_package(Eigen3 REQUIRED)
 
 
 set(ROS2_REQUIRED_COMPONENTS
+    rclcpp
     tf2_ros
     )
 foreach(COMPONENT ${ROS2_REQUIRED_COMPONENTS})
@@ -17,7 +19,18 @@ foreach(COMPONENT ${ROS2_REQUIRED_COMPONENTS})
 endforeach()
 
 
-include_directories(${CMAKE_CURRENT_LIST_DIR}/include)
+# include_directories(${CMAKE_CURRENT_LIST_DIR}/include)
+
+
+add_executable(read_data
+    src/read_data.cpp
+    )
+target_link_libraries(read_data
+    Eigen3::Eigen
+    )
+ament_target_dependencies(read_data
+    ${ROS2_REQUIRED_COMPONENTS}
+    )
 
 #  ___           _        _ _
 # |_ _|_ __  ___| |_ __ _| | |
@@ -32,5 +45,12 @@ install(
     rviz
     DESTINATION share/${PROJECT_NAME}
     )
+
+install(
+    TARGETS read_data
+    ARCHIVE DESTINATION lib
+    LIBRARY DESTINATION lib
+    RUNTIME DESTINATION bin
+)
 
 ament_package()

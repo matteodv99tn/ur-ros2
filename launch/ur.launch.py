@@ -112,7 +112,7 @@ def launch_setup(context, *args, **kwargs):
     ignition_simulator = IncludeLaunchDescription(
         PythonLaunchDescriptionSource([
             FindPackageShare("ros_gz_sim"), "/launch/gz_sim.launch.py"
-        ]),
+        ],),
         launch_arguments={"ign_args": " -r -v 1 empty.sdf"}.items(),
         condition=IfCondition(is_simulation),
     )

@@ -13,6 +13,8 @@ find_package(Eigen3 REQUIRED)
 set(ROS2_REQUIRED_COMPONENTS
     rclcpp
     tf2_ros
+    sensor_msgs
+    geometry_msgs
     )
 foreach(COMPONENT ${ROS2_REQUIRED_COMPONENTS})
     find_package(${COMPONENT} REQUIRED)

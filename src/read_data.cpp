@@ -3,6 +3,7 @@
 #include <fstream>
 #include <map>
 #include <string>
+#include <sys/stat.h>
 
 #include "rclcpp/rclcpp.hpp"
 #include "sensor_msgs/msg/joint_state.hpp"
@@ -30,9 +31,11 @@ class ReadDataNode : public rclcpp::Node {
 
     void on_joint_state_received(const sensor_msgs::msg::JointState::SharedPtr msg) {
         std::vector<double> joint_values(6);
+        std::vector<double> joint_velocities(6);
         for (int i = 0; i < 6; i++) {
-            int idx           = joint_map.at(msg->name[i]);
-            joint_values[idx] = msg->position[i];
+            int idx               = joint_map.at(msg->name[i]);
+            joint_values[idx]     = msg->position[i];
+            joint_velocities[idx] = msg->velocity[i];
         }
 
         std::uint64_t curr_time =
@@ -42,7 +45,10 @@ class ReadDataNode : public rclcpp::Node {
         joint_file << curr_time - first_joint_time << ", ";
         joint_file << joint_values[0] << ", " << joint_values[1] << ", "
                    << joint_values[2] << ", " << joint_values[3] << ", "
-                   << joint_values[4] << ", " << joint_values[5] << std::endl;
+                   << joint_values[4] << ", " << joint_values[5] << ", "
+                   << joint_velocities[0] << ", " << joint_velocities[1] << ", "
+                   << joint_velocities[2] << ", " << joint_velocities[3] << ", "
+                   << joint_velocities[4] << ", " << joint_velocities[5] << std::endl;
 
         geometry_msgs::msg::TransformStamped transform;
         transform = buffer.lookupTransform("world", "tool0", tf2::TimePointZero);
@@ -61,11 +67,20 @@ class ReadDataNode : public rclcpp::Node {
 public:
     ReadDataNode() : Node("read_data"), listener(buffer, this) {
         std::string home_dir       = std::getenv("HOME");
-        std::string joint_filename = home_dir + std::string("/joint_states.csv");
-        std::string cart_filename  = home_dir + std::string("/cartesian.csv");
+        std::string dmps_dir       = home_dir + std::string("/dmps");
+        std::string data_dir       = dmps_dir + std::string("/data");
+        mkdir(dmps_dir.c_str(), 0777);
+        mkdir(data_dir.c_str(), 0777);
+
+        std::string joint_filename = data_dir + std::string("/joint_states.csv");
+        std::string cart_filename  = data_dir + std::string("/cartesian.csv");
 
         joint_file.open(joint_filename);
         cart_file.open(cart_filename);
+
+        joint_file << "time, q1, q2, q3, q4, q5, q6, v1, v2, v3, v4, v5, v6"
+                   << std::endl;
+        cart_file << "time, x, y, z, qx, qy, qz, qw" << std::endl;
 
         sub = this->create_subscription<sensor_msgs::msg::JointState>(
                 "/joint_states",

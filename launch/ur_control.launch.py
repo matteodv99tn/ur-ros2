@@ -215,6 +215,23 @@ def launch_setup(context, *args, **kwargs):
         ]
     )
 
+    remappings =[
+            ('motion_control_handle/target_frame', 'target_frame'),
+            ('cartesian_motion_controller/target_frame', 'target_frame'),
+            ('end_effector_controller/target_frame', 'target_frame'),
+            ('end_effector_controller/target_wrench', 'target_wrench'),
+            ('cartesian_compliance_controller/target_frame', 'target_frame'),
+            ('cartesian_compliance_controller/target_wrench', 'target_wrench'),
+            ('cartesian_adaptive_compliance_controller/target_frame', 'target_frame'),
+            ('cartesian_adaptive_compliance_controller/target_wrench', 'target_wrench'),
+            # ('end_effector_controller/ft_sensor_wrench', 'bus0/ft_sensor0/ft_sensor_readings/wrench'),
+            # ('cartesian_compliance_controller/ft_sensor_wrench', 'bus0/ft_sensor0/ft_sensor_readings/wrench'),
+            ('cartesian_force_controller/target_wrench', 'target_wrench'),
+            ('cartesian_force_controller/ft_sensor_wrench', 'force_torque_sensor_broadcaster/wrench'),
+            ('cartesian_compliance_controller/ft_sensor_wrench', 'force_torque_sensor_broadcaster/wrench'),
+            ('cartesian_adaptive_compliance_controller/ft_sensor_wrench', 'force_torque_sensor_broadcaster/wrench'),
+            ]
+
     control_node = Node(
         package="controller_manager",
         executable="ros2_control_node",
@@ -225,18 +242,7 @@ def launch_setup(context, *args, **kwargs):
         ],
         output="screen",
         condition=IfCondition(use_fake_hardware),
-        remappings=[
-            ('motion_control_handle/target_frame', 'target_frame'),
-            ('cartesian_motion_controller/target_frame', 'target_frame'),
-            ('cartesian_compliance_controller/target_frame', 'target_frame'),
-            ('cartesian_compliance_controller/target_wrench', 'target_wrench'),
-            ('end_effector_controller/target_frame', 'target_frame'),
-            ('end_effector_controller/target_wrench', 'target_wrench'),
-            # ('end_effector_controller/ft_sensor_wrench', 'bus0/ft_sensor0/ft_sensor_readings/wrench'),
-            # ('cartesian_compliance_controller/ft_sensor_wrench', 'bus0/ft_sensor0/ft_sensor_readings/wrench'),
-            ('cartesian_force_controller/target_wrench', 'target_wrench'),
-            ('cartesian_force_controller/ft_sensor_wrench', 'force_torque_sensor_broadcaster/wrench'),
-            ]
+        remappings=remappings
     )
 
     ur_control_node = Node(
@@ -249,18 +255,7 @@ def launch_setup(context, *args, **kwargs):
         ],
         output="screen",
         condition=UnlessCondition(use_fake_hardware),
-        remappings=[
-            ('motion_control_handle/target_frame', 'target_frame'),
-            ('cartesian_motion_controller/target_frame', 'target_frame'),
-            ('cartesian_compliance_controller/target_frame', 'target_frame'),
-            ('cartesian_compliance_controller/target_wrench', 'target_wrench'),
-            ('end_effector_controller/target_frame', 'target_frame'),
-            ('end_effector_controller/target_wrench', 'target_wrench'),
-            # ('end_effector_controller/ft_sensor_wrench', 'bus0/ft_sensor0/ft_sensor_readings/wrench')
-            # ('cartesian_compliance_controller/ft_sensor_wrench', 'bus0/ft_sensor0/ft_sensor_readings/wrench'),
-            ('cartesian_force_controller/target_wrench', 'target_wrench'),
-            ('cartesian_force_controller/ft_sensor_wrench', 'force_torque_sensor_broadcaster/wrench'),
-            ]
+        remappings=remappings
     )
 
     dashboard_client_node = Node(

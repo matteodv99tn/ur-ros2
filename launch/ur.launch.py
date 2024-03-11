@@ -18,10 +18,8 @@ from launch_ros.substitutions import FindPackageShare
 from launch_ros.substitutions.find_package import get_package_share_directory
 from ur_moveit_config.launch_common import load_yaml
 
-
 package_name = "magician_ur"
 this_package_share = get_package_share_directory(package_name)
-
 
 
 def launch_setup(context, *args, **kwargs):
@@ -37,24 +35,29 @@ def launch_setup(context, *args, **kwargs):
     is_simulation = LaunchConfiguration("is_simulation").perform(context)
     controllers = LaunchConfiguration("controllers").perform(context)
     rviz_config = LaunchConfiguration("rviz_config").perform(context)
-    use_sim_time = LaunchConfiguration("is_simulation").perform(context) == "true"
+    use_sim_time = LaunchConfiguration("is_simulation").perform(
+        context) == "true"
     srdf_xacro_path = LaunchConfiguration("srdf_xacro_path").perform(context)
     ur_type = LaunchConfiguration("ur_type").perform(context)
     ur_ip_address = LaunchConfiguration("ur_ip_address").perform(context)
     load_moveit = LaunchConfiguration("load_moveit").perform(context)
-    initial_joint_controller = LaunchConfiguration("initial_joint_controller").perform(context)
-    description_package = LaunchConfiguration("description_package").perform(context)
+    initial_joint_controller = LaunchConfiguration(
+        "initial_joint_controller").perform(context)
+    description_package = LaunchConfiguration("description_package").perform(
+        context)
     xacro_file = LaunchConfiguration("xacro_file").perform(context)
+    state_publisher_frequency = LaunchConfiguration(
+        "state_publisher_frequency").perform(context)
 
     urdf_xacro_path = os.path.join(
-        get_package_share_directory(description_package), "urdf", xacro_file
-    )
+        get_package_share_directory(description_package), "urdf", xacro_file)
 
     controllers_full_path = os.path.join(
-        get_package_share_directory(package_name), "config", controllers
-    )
+        get_package_share_directory(package_name), "config", controllers)
 
-    if (initial_joint_controller == "scaled_joint_trajectory_controller") and (is_simulation == "true"):
+    if (initial_joint_controller
+            == "scaled_joint_trajectory_controller") and (is_simulation
+                                                          == "true"):
         initial_joint_controller = "joint_trajectory_controller"
 
     #  ____  _             _
@@ -63,23 +66,29 @@ def launch_setup(context, *args, **kwargs):
     #  ___) | || (_| | |  | |_| |_| | |_) |
     # |____/ \__\__,_|_|   \__|\__,_| .__/
     #                               |_|
-    robot_description_content = xacro.process(
-        urdf_xacro_path,
-        mappings={
-            "name": "ur",
-            "ur_type": ur_type,
-            "sim_ignition": is_simulation,
-            "simulation_controllers": controllers_full_path,
-        }
-    )
+    robot_description_content = xacro.process(urdf_xacro_path,
+                                              mappings={
+                                                  "name":
+                                                  "ur",
+                                                  "ur_type":
+                                                  ur_type,
+                                                  "sim_ignition":
+                                                  is_simulation,
+                                                  "simulation_controllers":
+                                                  controllers_full_path,
+                                              })
     robot_description = {"robot_description": robot_description_content}
+    with open("ur.urdf", "w") as f:
+        f.write(robot_description_content)
 
-    semantic_description_content = xacro.process(
-        srdf_xacro_path, mappings={
-            "name": "ur", "ur_type": ur_type
-        }
-    )
-    semantic_description = {"robot_description_semantic": semantic_description_content}
+    semantic_description_content = xacro.process(srdf_xacro_path,
+                                                 mappings={
+                                                     "name": "ur",
+                                                     "ur_type": ur_type
+                                                 })
+    semantic_description = {
+        "robot_description_semantic": semantic_description_content
+    }
 
     robot_state_publisher_node = Node(
         package="robot_state_publisher",
@@ -87,7 +96,8 @@ def launch_setup(context, *args, **kwargs):
         output="log",
         parameters=[
             robot_description, semantic_description, {
-                "use_sim_time": use_sim_time
+                "use_sim_time": use_sim_time,
+                "publish_frequency": state_publisher_frequency,
             }
         ],
         condition=IfCondition(is_simulation),
@@ -119,9 +129,8 @@ def launch_setup(context, *args, **kwargs):
     )
 
     ignition_simulator = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource([
-            FindPackageShare("ros_gz_sim"), "/launch/gz_sim.launch.py"
-        ],),
+        PythonLaunchDescriptionSource(
+            [FindPackageShare("ros_gz_sim"), "/launch/gz_sim.launch.py"], ),
         launch_arguments={"ign_args": " -r -v 1 empty.sdf"}.items(),
         condition=IfCondition(is_simulation),
     )
@@ -138,10 +147,12 @@ def launch_setup(context, *args, **kwargs):
     # |_| \_|\___/ \__,_|\___||___/
     #
     ur_drivers_node = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource([
-            # FindPackageShare("ur_robot_driver"), "/launch/ur_control.launch.py"
-            FindPackageShare("magician_ur"), "/launch/ur_control.launch.py"
-        ], ),
+        PythonLaunchDescriptionSource(
+            [
+                # FindPackageShare("ur_robot_driver"), "/launch/ur_control.launch.py"
+                FindPackageShare("magician_ur"),
+                "/launch/ur_control.launch.py"
+            ], ),
         launch_arguments={
             "ur_type": ur_type,
             "robot_ip": ur_ip_address,
@@ -161,7 +172,8 @@ def launch_setup(context, *args, **kwargs):
         package="controller_manager",
         executable="spawner",
         arguments=[
-            "joint_state_broadcaster", "--controller-manager", "/controller_manager"
+            "joint_state_broadcaster", "--controller-manager",
+            "/controller_manager"
         ],
         output="log",
         condition=IfCondition(is_simulation),
@@ -171,8 +183,7 @@ def launch_setup(context, *args, **kwargs):
         package="controller_manager",
         executable="spawner",
         arguments=[
-            "joint_trajectory_controller",
-            "--controller-manager",
+            "joint_trajectory_controller", "--controller-manager",
             "/controller_manager"
         ],
         output="log",
@@ -194,34 +205,33 @@ def launch_setup(context, *args, **kwargs):
     moveit_config_package = "ur_moveit_config"
     warehouse_sqlite_path = os.path.expanduser("~/.ros/warehouse_ros.sqlite")
 
-    robot_description_kinematics = PathJoinSubstitution([
-        FindPackageShare(moveit_config_package), "config", "kinematics.yaml"
-    ])
+    robot_description_kinematics = PathJoinSubstitution(
+        [FindPackageShare(moveit_config_package), "config", "kinematics.yaml"])
 
     ompl_planning_pipeline_config = {
         "move_group": {
-            "planning_plugin":
-                "ompl_interface/OMPLPlanner",
+            "planning_plugin": "ompl_interface/OMPLPlanner",
             "request_adapters":
-                """default_planner_request_adapters/AddTimeOptimalParameterization default_planner_request_adapters/FixWorkspaceBounds default_planner_request_adapters/FixStartStateBounds default_planner_request_adapters/FixStartStateCollision default_planner_request_adapters/FixStartStatePathConstraints""",
-            "start_state_max_bounds_error":
-                0.1,
+            """default_planner_request_adapters/AddTimeOptimalParameterization default_planner_request_adapters/FixWorkspaceBounds default_planner_request_adapters/FixStartStateBounds default_planner_request_adapters/FixStartStateCollision default_planner_request_adapters/FixStartStatePathConstraints""",
+            "start_state_max_bounds_error": 0.1,
         }
     }
-    ompl_planning_yaml = load_yaml("ur_moveit_config", "config/ompl_planning.yaml")
+    ompl_planning_yaml = load_yaml("ur_moveit_config",
+                                   "config/ompl_planning.yaml")
     ompl_planning_pipeline_config["move_group"].update(ompl_planning_yaml)
 
     controllers_yaml = load_yaml("ur_moveit_config", "config/controllers.yaml")
     change_controllers = is_simulation
     if change_controllers == "true":
-        controllers_yaml["scaled_joint_trajectory_controller"]["default"] = False
+        controllers_yaml["scaled_joint_trajectory_controller"][
+            "default"] = False
         controllers_yaml["joint_trajectory_controller"]["default"] = True
 
     moveit_controllers = {
         "moveit_simple_controller_manager":
-            controllers_yaml,
+        controllers_yaml,
         "moveit_controller_manager":
-            "moveit_simple_controller_manager/MoveItSimpleControllerManager",
+        "moveit_simple_controller_manager/MoveItSimpleControllerManager",
     }
 
     trajectory_execution = {
@@ -305,15 +315,17 @@ def launch_setup(context, *args, **kwargs):
         output="log",
         arguments=["-d", rviz_config],
         parameters=rviz_parameters,
-        condition=IfCondition(LaunchConfiguration("launch_rviz").perform(context)),
+        condition=IfCondition(
+            LaunchConfiguration("launch_rviz").perform(context)),
     )
     rqt_controller_manager = Node(
-            package="rqt_controller_manager",
-            executable="rqt_controller_manager",
-            name="rqt_controller_manager",
-            output="log",
-            condition=IfCondition(LaunchConfiguration("launch_rqt_cm").perform(context)),
-        )
+        package="rqt_controller_manager",
+        executable="rqt_controller_manager",
+        name="rqt_controller_manager",
+        output="log",
+        condition=IfCondition(
+            LaunchConfiguration("launch_rqt_cm").perform(context)),
+    )
 
     nodes_to_start += [
         rviz_node,
@@ -321,7 +333,6 @@ def launch_setup(context, *args, **kwargs):
     ]
 
     return nodes_to_start
-
 
 
 def generate_launch_description():
@@ -332,92 +343,87 @@ def generate_launch_description():
             "is_simulation",
             description="Load simulation environment or robot driver?",
             default_value="false",
-        )
-    )
+        ))
     declared_arguments.append(
         DeclareLaunchArgument(
             "launch_rviz",
             description="Launch RViz?",
             default_value="true",
-        )
-    )
+        ))
     declared_arguments.append(
         DeclareLaunchArgument(
-            "load_moveit",#
+            "load_moveit",  #
             description="Load moveit2 components?",
             default_value="false",
-        )
-    )
+        ))
     declared_arguments.append(
-        DeclareLaunchArgument(
-            "rviz_config",
-            description="RViz configuration",
-            default_value=os.path.join(this_package_share, "rviz", "view_robot.rviz")
-        )
-    )
+        DeclareLaunchArgument("rviz_config",
+                              description="RViz configuration",
+                              default_value=os.path.join(
+                                  this_package_share, "rviz",
+                                  "view_robot.rviz")))
     declared_arguments.append(
         DeclareLaunchArgument(
             "controllers",
             description=".yaml file name inside current package",
-            default_value="default_controllers.yaml"
-        )
-    )
+            default_value="default_controllers.yaml"))
     declared_arguments.append(
         DeclareLaunchArgument(
             "initial_joint_controller",
-            description="type of UR robot to be used in the simulation or driver.",
+            description=
+            "type of UR robot to be used in the simulation or driver.",
             default_value="scaled_joint_trajectory_controller",
-        )
-    )
+        ))
     declared_arguments.append(
         DeclareLaunchArgument(
             "ur_type",
-            description="type of UR robot to be used in the simulation or driver.",
+            description=
+            "type of UR robot to be used in the simulation or driver.",
             default_value="ur5e",
-        )
-    )
+        ))
     declared_arguments.append(
         DeclareLaunchArgument(
             "description_package",
-            description="Package where the robot description (as xacro file) is located.",
+            description=
+            "Package where the robot description (as xacro file) is located.",
             default_value="ur_description",
-        )
-    )
+        ))
     declared_arguments.append(
         DeclareLaunchArgument(
             "xacro_file",
-            description="Name of the xacro file to be used for robot description.",
+            description=
+            "Name of the xacro file to be used for robot description.",
             default_value="ur.urdf.xacro",
-        )
-    )
+        ))
 
     declared_arguments.append(
         DeclareLaunchArgument(
             "ur_ip_address",
             description="IP address of the UR robot to be used in the driver.",
             default_value="192.168.0.100",
-        )
-    )
+        ))
     declared_arguments.append(
         DeclareLaunchArgument(
             "launch_rqt_cm",
             description="Launch rqt_controller_manager?",
             default_value="false",
-        )
-    )
+        ))
     declared_arguments.append(
         DeclareLaunchArgument(
             "srdf_xacro_path",
             description=
             "Path to the srdf xacro file to be used for semantic robot description.",
             default_value=os.path.join(
-                get_package_share_directory("ur_moveit_config"),
-                "srdf",
-                "ur.srdf.xacro"
-            ),
-        )
-    )
+                get_package_share_directory("ur_moveit_config"), "srdf",
+                "ur.srdf.xacro"),
+        ))
+    declared_arguments.append(
+        DeclareLaunchArgument(
+            "state_publisher_frequency",
+            description=
+            "frequency at which the state publisher should update the TF tree.",
+            default_value="50.0",
+        ))
 
-    return LaunchDescription(
-        declared_arguments + [OpaqueFunction(function=launch_setup)]
-    )
+    return LaunchDescription(declared_arguments +
+                             [OpaqueFunction(function=launch_setup)])

@@ -134,12 +134,12 @@ cartesian_adaptive_compliance_controller:
             - 1.5
             - 1.5
         K_min: # Minimum stiffness (diagonal)
-            - 100.0
-            - 100.0
-            - 100.0
-            - 30.0
-            - 30.0
-            - 10.0
+            - 0.1
+            - 0.1
+            - 0.1
+            - -0.10
+            - -0.10
+            - -0.10
         K_max: # Maximum stiffness (diagonal)
             - 1000.0
             - 1000.0

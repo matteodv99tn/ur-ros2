@@ -123,6 +123,35 @@
    <origin xyz="0.510 0.340 1.789" rpy="${pi} 0 ${pi}" />          <!-- position robot in the world -->
    </xacro:ur_robot>
 
+  <xacro:include filename="$(find rokubimini_description)/urdf/BFT_SENS_ECAT_M8.urdf.xacro" />
+    <xacro:BFT_SENS_ECAT_M8 prefix="ft_sensor0" />
+    <joint name="bota_ft_sensor" type="fixed">
+      <parent link="ft_frame" />
+      <child link = "ft_sensor0_mounting" />
+      <origin xyz="0.0 0.0 0.0" rpy="${pi} 0.0 ${pi/2}" />
+    </joint>
+
+    <link
+      name="probe">
+    </link>
+
+    <joint name="tip_tool" type="fixed">
+      <parent link="ft_sensor0_wrench" />
+      <child link = "probe" />
+      <origin xyz="0.0 0.0 0.08" rpy="0.0 0.0 0.0" />
+    </joint>
+
+    <link
+      name="compliance_link">
+    </link>
+
+    <joint name="tool_to_compliance" type="fixed">
+      <parent link="probe" />
+      <child link = "compliance_link" />
+      <origin xyz="0.0 0.0 0.045" rpy="0.0 0.0 0.0" />
+    </joint>
+
+
    <xacro:if value="$(arg sim_gazebo)">
     <!-- Gazebo plugins -->
     <gazebo reference="world">

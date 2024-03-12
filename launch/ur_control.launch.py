@@ -224,12 +224,13 @@ def launch_setup(context, *args, **kwargs):
             ('cartesian_compliance_controller/target_wrench', 'target_wrench'),
             ('cartesian_adaptive_compliance_controller/target_frame', 'target_frame'),
             ('cartesian_adaptive_compliance_controller/target_wrench', 'target_wrench'),
-            # ('end_effector_controller/ft_sensor_wrench', 'bus0/ft_sensor0/ft_sensor_readings/wrench'),
-            # ('cartesian_compliance_controller/ft_sensor_wrench', 'bus0/ft_sensor0/ft_sensor_readings/wrench'),
-            ('cartesian_force_controller/target_wrench', 'target_wrench'),
-            ('cartesian_force_controller/ft_sensor_wrench', 'force_torque_sensor_broadcaster/wrench'),
-            ('cartesian_compliance_controller/ft_sensor_wrench', 'force_torque_sensor_broadcaster/wrench'),
-            ('cartesian_adaptive_compliance_controller/ft_sensor_wrench', 'force_torque_sensor_broadcaster/wrench'),
+            ('end_effector_controller/ft_sensor_wrench', 'bus0/ft_sensor0/ft_sensor_readings/wrench'),
+            ('cartesian_compliance_controller/ft_sensor_wrench', 'bus0/ft_sensor0/ft_sensor_readings/wrench'),
+            ('cartesian_adaptive_compliance_controller/ft_sensor_wrench', 'bus0/ft_sensor0/ft_sensor_readings/wrench'),
+            # ('cartesian_force_controller/target_wrench', 'target_wrench'),
+            # ('cartesian_force_controller/ft_sensor_wrench', 'force_torque_sensor_broadcaster/wrench'),
+            # ('cartesian_compliance_controller/ft_sensor_wrench', 'force_torque_sensor_broadcaster/wrench'),
+            # ('cartesian_adaptive_compliance_controller/ft_sensor_wrench', 'force_torque_sensor_broadcaster/wrench'),
             ]
 
     control_node = Node(

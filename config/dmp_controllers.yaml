@@ -69,7 +69,7 @@ cartesian_adaptive_compliance_controller:
     command_interfaces:
       - position
 
-    stiffness: 
+    stiffness:
         trans_x: 500.0
         trans_y: 500.0
         trans_z: 500.0
@@ -82,9 +82,9 @@ cartesian_adaptive_compliance_controller:
         iterations: 1
 
     pd_gains:
-        trans_x: {p: 0.25, d: 0.005}
-        trans_y: {p: 0.25, d: 0.005}
-        trans_z: {p: 0.25, d: 0.005}
+        trans_x: {p: 0.16, d: 0.0005}
+        trans_y: {p: 0.16, d: 0.0005}
+        trans_z: {p: 0.16, d: 0.0005}
         rot_x: {p: 1.5}
         rot_y: {p: 1.5}
         rot_z: {p: 1.5}
@@ -100,32 +100,32 @@ cartesian_adaptive_compliance_controller:
     # Tank parameters
     tank:
         initial_state: 1.0
-        minimum_energy: 0.4
+        minimum_energy: 0.1
         eta: -0.1
 
     # QP parameters
     Qp:
         F_min:  # Force lower bound
-            - -15.0
-            - -15.0
-            - -15.0
+            - -35.0
+            - -35.0
+            - -35.0
             - -1.5
             - -1.5
             - -1.5
         F_max:  # Force upper bound
-            - 15.0
-            - 15.0
-            - 15.0
+            - 35.0
+            - 35.0
+            - 35.0
             - 1.5
             - 1.5
             - 1.5
         K_min: # Minimum stiffness (diagonal)
+            - 5.1
+            - 5.1
+            - 5.1
             - 0.01
             - 0.01
             - 0.01
-            - 0.0010
-            - 0.0010
-            - 0.0010
         K_max: # Maximum stiffness (diagonal)
             - 1000.0
             - 1000.0
@@ -256,7 +256,7 @@ cartesian_compliance_controller:
       - $(var tf_prefix)wrist_1_joint
       - $(var tf_prefix)wrist_2_joint
       - $(var tf_prefix)wrist_3_joint
-      
+
     command_interfaces:
       - position
 

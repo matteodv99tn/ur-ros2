@@ -148,7 +148,7 @@
     <joint name="tool_to_compliance" type="fixed">
       <parent link="probe" />
       <child link = "compliance_link" />
-      <origin xyz="0.0 0.0 0.045" rpy="0.0 0.0 0.0" />
+      <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
     </joint>
 
 
